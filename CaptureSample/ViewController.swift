@@ -15,9 +15,16 @@ class ViewController: UIViewController {
   func export() {
     let nib = UINib(nibName: "OffScreenView", bundle: nil)
     let view = nib.instantiateWithOwner(nil, options: nil)[0] as OffScreenView
-    let image = view.export()
-    imageView.image = image
-    NSLog("size = \(image.size)")
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), {
+      let image = view.export()
+      NSLog("isMainThread = \(NSThread.currentThread().isMainThread)")
+      
+      dispatch_async(dispatch_get_main_queue(), {
+        self.imageView.image = image
+        NSLog("size = \(image.size)")
+      })
+    })
   }
 }
 
